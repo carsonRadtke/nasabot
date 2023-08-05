@@ -1,7 +1,6 @@
 export function validateDate(date?: string): string | undefined {
   if (date == undefined) return undefined;
-  if (!date.match("([0-9]{4})-([0-9}{2})-([0-9]{2})"))
-    throw new Error("invalid date format");
+  if (!date.match("([0-9]{4})-([0-9}{2})-([0-9]{2})")) return undefined;
   return date;
 }
 

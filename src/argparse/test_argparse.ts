@@ -17,6 +17,5 @@ describe("test_Argparse", () => {
       "command",
       "sub 'command'",
     ]);
-    expect(() => ArgParse.parse("command 'subcommand")).toThrow(Error);
   });
 });

@@ -2,8 +2,9 @@ import * as Discord from "discord.js";
 
 import { CommandHandler } from "./commandHandler";
 import { APODCommand } from "./apodCommand";
+import { HelpCommand } from "./helpCommand";
 
-const nasaHandler = new CommandHandler();
+const nasaHandler = new CommandHandler("help", new HelpCommand());
 nasaHandler.registerCommand("apod", new APODCommand());
 
 export async function dispatchCommand(

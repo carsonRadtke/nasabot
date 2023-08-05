@@ -3,7 +3,7 @@ import {
   AbstractRequestSchema,
   AbstractResponseSchema,
 } from "../services/schemas/abstractSchema";
-import { AbstractCommand } from "./abstractCommand";
+import { AbstractAPICommand } from "./abstractCommand";
 import {
   validateBoolean,
   validateDate,
@@ -61,11 +61,11 @@ class APODResponseSchema extends AbstractResponseSchema {
   }
 }
 
-export class APODCommand extends AbstractCommand {
+export class APODCommand extends AbstractAPICommand {
   buildRequest(argv: string[]): APODRequestSchema {
     let argv_dict: { [key: string]: string } = {};
     for (const arg of argv) {
-      if (!arg.includes("=")) throw new Error("arg did not contain errors");
+      if (!arg.includes("=")) return new APODRequestSchema({});
       const [key, ...values] = arg.split("=");
       argv_dict[key] = values.join("=");
     }
