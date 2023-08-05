@@ -1,20 +1,19 @@
 function nextToken(
   command: string,
-  start: number
+  start: number,
 ): { token: string; new_idx: number } {
   let end: number;
-  if (command.charAt(start) == "'")
-  {
+  if (command.charAt(start) == "'") {
     start += 1;
     end = command.indexOf("'", start);
-    while (end > 0 && command.charAt(end-1) == "\\") end = command.indexOf("'", end+1);
+    while (end > 0 && command.charAt(end - 1) == "\\")
+      end = command.indexOf("'", end + 1);
     if (end == -1) throw new Error("Unclosed quote");
-  }
-  else end = command.indexOf(" ", start);
+  } else end = command.indexOf(" ", start);
   if (end == -1) end = command.length;
   let token = command.substring(start, end);
   while (token.includes("\\")) token = token.replace("\\", "");
-  return { token: token, new_idx: end+1 };
+  return { token: token, new_idx: end + 1 };
 }
 
 export function parse(command: string): string[] {
