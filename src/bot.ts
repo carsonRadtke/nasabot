@@ -3,27 +3,22 @@ import * as Process from "node:process";
 import * as ArgParse from "./argparse";
 import * as Commands from "./commands";
 
+const command_prefixes = ["./nasa"];
+
 const client = new Discord.Client({
-  intents: [
-    /* TODO (@cradtke) */
-  ],
+  intents: ["MessageContent", "Guilds", "DirectMessages", "GuildMessages"],
+  partials: [Discord.Partials.Message, Discord.Partials.Channel],
 });
 
-client.on("ready", (client: Discord.Client<true>) => {
-  console.log(client);
+client.on(Discord.Events.ClientReady, (client: Discord.Client<true>) => {
+  console.log("client ready");
 });
 
-client.on("messageCreate", (message: Discord.Message<boolean>) => {
+client.on(Discord.Events.MessageCreate, (message: Discord.Message<boolean>) => {
   const { content } = message;
-  if (content.startsWith("./nasa "))
-    Commands.handle(message, ArgParse.parse(content));
+  if (!command_prefixes.some((pre) => content.startsWith(pre))) return;
+
+  Commands.handle(message, ArgParse.parse(content));
 });
 
-() => {
-  const token = Process.env["NASABOT_TOKEN"];
-  if (token == undefined) {
-    console.error("Could not find NASABOT_TOKEN environment variable");
-    Process.exit(1);
-  }
-  client.login(token);
-};
+client.login(Process.env["NASABOT_TOKEN"]);

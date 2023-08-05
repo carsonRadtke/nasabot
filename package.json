@@ -4,7 +4,9 @@
   "description": "discord bot that talks to api.nasa.gov",
   "main": "build/bot.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "npx tsc",
+    "format": "npx prettier -w ."
   },
   "keywords": [
     "discord",

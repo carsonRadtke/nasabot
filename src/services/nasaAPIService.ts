@@ -1,29 +1,15 @@
-import { APODRequestSchema } from "./schemas/apodSchema";
 import {
   AbstractRequestSchema,
   AbstractResponseSchema,
-} from "./schemas/schema";
+} from "./schemas/abstractSchema";
 
-function buildURL(
-  root: string,
-  endpoint: string,
-  params: AbstractRequestSchema,
-): string {
-  let paramsSuffix = "?api_key=DEMO_KEY&";
-  for (const { key, value } of params.items())
-    paramsSuffix += key + "=" + value + "&";
-  paramsSuffix = paramsSuffix.substring(0, paramsSuffix.length - 1);
-  return root + endpoint + paramsSuffix;
-}
+const BASE_URL = "https://api.nasa.gov";
 
-function NASARequest<T extends AbstractResponseSchema>(
-  endpoint: string,
-  queryParams: AbstractRequestSchema,
-): T | undefined {
-  const url = buildURL("https://api.nasa.gov/", endpoint, queryParams);
-  return undefined;
-}
-
-export function APODRequest(schema: APODRequestSchema | undefined): APODRequestSchema | undefined {
-  return NASARequest<APODRequestSchema>("planetary/apod", schema ?? {} as APODRequestSchema);
+export async function NASAAPIRequest<
+  Q extends AbstractRequestSchema,
+  S extends AbstractResponseSchema,
+>(endpoint: string, request: Q, proto: any): Promise<S> {
+  let url = BASE_URL + endpoint + request.queryParams();
+  let json = await (await fetch(url)).json();
+  return Object.create(proto, Object.getOwnPropertyDescriptors(json)) as S;
 }
