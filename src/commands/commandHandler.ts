@@ -11,7 +11,7 @@ export class CommandHandler {
   }
 
   registerCommand(name: string, command: AbstractCommand): void {
-    if (this.commands[name] != undefined)
+    if (this.commands[name] !== undefined)
       throw new Error("Command name already registered");
     this.commands[name] = command;
   }

@@ -9,7 +9,7 @@ export async function NASAAPIRequest<
   Q extends AbstractRequestSchema,
   S extends AbstractResponseSchema,
 >(endpoint: string, request: Q, proto: any): Promise<S> {
-  let url = BASE_URL + endpoint + request.queryParams();
-  let json = await (await fetch(url)).json();
+  const url = BASE_URL + endpoint + request.queryParams();
+  const json = await (await fetch(url)).json();
   return Object.create(proto, Object.getOwnPropertyDescriptors(json)) as S;
 }

@@ -45,3 +45,9 @@ strong emission produced as electrons recombine with doubly ionized oxygen atoms
 
 Feel free to put up a PR! There are a number of endpoints available at
 [api.nasa.gov](https://api.nasa.gov) that the bot could utilize.
+
+In order to emulate the pipeline locally, you will need to:
+
+```
+$ npm install --save-dev
+```
