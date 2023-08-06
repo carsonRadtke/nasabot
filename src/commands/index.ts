@@ -13,7 +13,7 @@ export async function dispatchCommand(
   subcommand: string,
   argv: string[],
 ): Promise<undefined> {
-  if (command == "./nasa")
+  if (command === "./nasa")
     await nasaHandler.handle(subcommand).respond(message, argv);
 }
 
@@ -22,6 +22,6 @@ export async function handle(
   argv: string[],
 ): Promise<undefined> {
   message.channel.sendTyping();
-  const [command, subcommand, ...subcommand_argv] = argv;
-  await dispatchCommand(message, command, subcommand, subcommand_argv);
+  const [command, subcommand, ...subcommandArgv] = argv;
+  await dispatchCommand(message, command, subcommand, subcommandArgv);
 }

@@ -1,10 +1,10 @@
 export abstract class AbstractRequestSchema {
-  protected api_key: string;
+  protected apiKey: string;
   constructor() {
-    this.api_key = "DEMO_KEY";
+    this.apiKey = "DEMO_KEY";
   }
   queryParams(): string {
-    return "?api_key=" + this.api_key;
+    return "?api_key=" + this.apiKey;
   }
 }
 export abstract class AbstractResponseSchema {}
