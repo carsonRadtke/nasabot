@@ -1,0 +1,31 @@
+name: pipeline
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  builder:
+    name: builder
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: install
+        run: npm install
+      - name: build
+        run: npm run build
+
+  tester:
+    name: tester
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: install
+        run: npm install
+      - name: test
+        run: npm run test
