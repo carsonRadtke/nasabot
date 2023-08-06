@@ -3,8 +3,10 @@ import { AbstractCommand } from "./abstractCommand";
 export class CommandHandler {
   private commands: { [name: string]: AbstractCommand } = {};
 
-  constructor(private defaultName: string, defaultCommand: AbstractCommand)
-  {
+  constructor(
+    private defaultName: string,
+    defaultCommand: AbstractCommand,
+  ) {
     this.registerCommand(this.defaultName, defaultCommand);
   }
 

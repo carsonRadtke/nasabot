@@ -5,10 +5,13 @@ import {
 import * as Discord from "discord.js";
 
 export abstract class AbstractCommand {
-  abstract respond(message: Discord.Message<boolean>, argv: string[]): Promise<Discord.Message<boolean>>;
+  abstract respond(
+    message: Discord.Message<boolean>,
+    argv: string[],
+  ): Promise<Discord.Message<boolean>>;
 }
 
-export abstract class AbstractAPICommand extends AbstractCommand{
+export abstract class AbstractAPICommand extends AbstractCommand {
   abstract buildRequest(argv: string[]): AbstractRequestSchema;
   abstract makeRequest(
     request: AbstractResponseSchema,
