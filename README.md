@@ -35,7 +35,7 @@ an aging star. In fact, visible at the center of the nebula, the central star of
 1360 is known to be a binary star system likely consisting of two evolved white dwarf
 stars, less massive but much hotter than the Sun.  Their intense and otherwise invisible
 ultraviolet radiation has stripped away electrons from the atoms in their mutually
-surrounding gaseous shroud. The predominant blue-green hue of NGC 1360 seen here is the 
+surrounding gaseous shroud. The predominant blue-green hue of NGC 1360 seen here is the
 strong emission produced as electrons recombine with doubly ionized oxygen atoms.
 ```
 

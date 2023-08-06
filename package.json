@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "build": "npx tsc",
-    "format": "npx prettier -w ."
+    "format": "npx prettier --write .",
+    "format-check": "npx prettier --check ."
   },
   "keywords": [
     "discord",
