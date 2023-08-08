@@ -3,9 +3,7 @@ import {
   AbstractResponseSchema,
 } from "../services/schemas/abstractSchema";
 import { AbstractAPICommand } from "./abstractCommand";
-import {
-  validateDate,
-} from "../services/schemas";
+import { validateDate } from "../services/schemas";
 import { NASAAPIRequest } from "../services/nasaAPIService";
 
 class APODRequestSchema extends AbstractRequestSchema {
