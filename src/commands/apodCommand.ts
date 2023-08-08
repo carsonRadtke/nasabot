@@ -29,11 +29,11 @@ class APODRequestSchema extends AbstractRequestSchema {
 
   queryParams(): string {
     let rv = super.queryParams();
-    if (this.date !== undefined) rv += "&date=" + this.date;
-    if (this.startDate !== undefined) rv += "&start_date=" + this.startDate;
-    if (this.endDate !== undefined) rv += "&end_date=" + this.endDate;
-    if (this.count !== undefined) rv += "&count=" + this.count;
-    if (this.thumbs !== undefined) rv += "&thumbs=" + this.thumbs;
+    if (this.date !== undefined) rv += `&date=${this.date}`;
+    if (this.startDate !== undefined) rv += `&start_date=${this.startDate}`;
+    if (this.endDate !== undefined) rv += `&end_date=${this.endDate}`;
+    if (this.count !== undefined) rv += `&count=${this.count}`;
+    if (this.thumbs !== undefined) rv += `&thumbs=${this.thumbs}`;
     return rv;
   }
 }
@@ -83,8 +83,10 @@ export class APODCommand extends AbstractAPICommand {
   }
 
   buildResponse(response: APODResponseSchema): string {
+    const copyright =
+      response.copyright === undefined ? "" : `by ${response.copyright}`;
     return [
-      response.title + " by " + response.copyright,
+      `${response.title} ${copyright}`,
       response.explanation,
       response.hdurl,
     ].join("\n");

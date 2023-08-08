@@ -13,7 +13,7 @@ If you want to host your own instance of the bot:
 ```
 $ npm install
 $ npm run build
-$ NASABOT_TOKEN=<bot_token> node build.bot.js
+$ NASABOT_TOKEN=<bot_token> API_KEY=<api_key> node build.bot.js
 ```
 
 If you want to add this bot to your Discord server, click
