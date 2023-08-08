@@ -1,5 +1,4 @@
 import * as Discord from "discord.js";
-import * as Process from "node:process";
 import * as ArgParse from "./argparse";
 import * as Commands from "./commands";
 import { getEnv } from "./services/environ";
