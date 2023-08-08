@@ -3,9 +3,11 @@ import * as Discord from "discord.js";
 import { CommandHandler } from "./commandHandler";
 import { APODCommand } from "./apodCommand";
 import { HelpCommand } from "./helpCommand";
+import { PingCommand } from "./pingCommand";
 
 const nasaHandler = new CommandHandler("help", new HelpCommand());
 nasaHandler.registerCommand("apod", new APODCommand());
+nasaHandler.registerCommand("ping", new PingCommand());
 
 export async function dispatchCommand(
   message: Discord.Message<boolean>,
