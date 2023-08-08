@@ -12,10 +12,7 @@ function usage() {
 }
 
 export class HelpCommand extends AbstractCommand {
-  respond(
-    message: Message<boolean>,
-    argv: string[],
-  ): Promise<Message<boolean>> {
+  respond(message: Message<boolean>, _: string[]): Promise<Message<boolean>> {
     return message.reply(usage());
   }
 }

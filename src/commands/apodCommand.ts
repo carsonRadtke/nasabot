@@ -1,4 +1,3 @@
-import { MessagePayload } from "discord.js";
 import {
   AbstractRequestSchema,
   AbstractResponseSchema,
@@ -49,18 +48,6 @@ class APODResponseSchema extends AbstractResponseSchema {
   public service_version: string = "";
   public title: string = "";
   public url: string = "";
-
-  constructor(json: { [key: string]: string }) {
-    super();
-    this.copyright = json["copyright"];
-    this.date = json["date"];
-    this.explanation = json["explanation"];
-    this.hdurl = json["hdurl"];
-    this.media_type = json["media_type"];
-    this.service_version = json["service_version"];
-    this.title = json["title"];
-    this.url = json["url"];
-  }
 }
 
 export class APODCommand extends AbstractAPICommand {

@@ -1,4 +1,3 @@
-import * as Process from "node:process";
 import { getEnv } from "../environ";
 export abstract class AbstractRequestSchema {
   protected apiKey: string;

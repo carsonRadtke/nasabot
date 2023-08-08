@@ -3,6 +3,7 @@ import {
   AbstractResponseSchema,
 } from "../services/schemas/abstractSchema";
 import * as Discord from "discord.js";
+import { ErrorResponseSchema } from "../services/schemas/errorSchema";
 
 export abstract class AbstractCommand {
   abstract respond(
@@ -23,7 +24,13 @@ export abstract class AbstractAPICommand extends AbstractCommand {
     argv: string[],
   ): Promise<Discord.Message<boolean>> {
     const request = this.buildRequest(argv);
-    const response = await this.makeRequest(request);
+    let response: AbstractResponseSchema;
+    try {
+      response = await this.makeRequest(request);
+    } catch (err: unknown) {
+      const errorRes = err as ErrorResponseSchema;
+      return message.reply(`Error: ${errorRes.msg}`);
+    }
     const payload = this.buildResponse(response);
     return message.reply(payload);
   }
