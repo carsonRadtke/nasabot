@@ -13,6 +13,10 @@ Options for <command>:
 \`\`\``;
 
 export class HelpCommand extends AbstractCommand {
+  constructor() {
+    super("help");
+  }
+
   respond(message: Message<boolean>, _: string[]): Promise<Message<boolean>> {
     return message.reply(USAGE_MSG);
   }

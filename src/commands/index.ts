@@ -5,9 +5,9 @@ import { APODCommand } from "./apodCommand";
 import { HelpCommand } from "./helpCommand";
 import { PingCommand } from "./pingCommand";
 
-const nasaHandler = new CommandHandler("help", new HelpCommand());
-nasaHandler.registerCommand("apod", new APODCommand());
-nasaHandler.registerCommand("ping", new PingCommand());
+const nasaHandler = new CommandHandler(new HelpCommand());
+nasaHandler.registerCommand(new APODCommand());
+nasaHandler.registerCommand(new PingCommand());
 
 export async function dispatchCommand(
   message: Discord.Message<boolean>,
