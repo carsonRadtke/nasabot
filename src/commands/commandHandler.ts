@@ -4,19 +4,18 @@ export class CommandHandler {
   private commands: { [name: string]: AbstractCommand } = {};
 
   constructor(
-    private defaultName: string,
-    defaultCommand: AbstractCommand,
+    private defaultCommand: AbstractCommand,
   ) {
-    this.registerCommand(this.defaultName, defaultCommand);
+    this.registerCommand(defaultCommand);
   }
 
-  registerCommand(name: string, command: AbstractCommand): void {
-    if (this.commands[name] !== undefined)
+  registerCommand(command: AbstractCommand): void {
+    if (this.commands[command.getName()] !== undefined)
       throw new Error("Command name already registered");
-    this.commands[name] = command;
+    this.commands[command.getName()] = command;
   }
 
   handle(name: string): AbstractCommand {
-    return this.commands[name] ?? this.commands[this.defaultName];
+    return this.commands[name] ?? this.defaultCommand;
   }
 }

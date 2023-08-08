@@ -35,6 +35,7 @@ class APODResponseSchema extends AbstractResponseSchema {
 }
 
 export class APODCommand extends AbstractAPICommand {
+  constructor() { super("apod"); }
   buildRequest(argv: string[]): APODRequestSchema {
     const argvDict: { [key: string]: string } = {};
     for (const arg of argv) {
