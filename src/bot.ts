@@ -13,6 +13,7 @@ const client = new Discord.Client({
 client.on(Discord.Events.ClientReady, (_cli: Discord.Client<true>) => {
   // tslint:disable-next-line:no-console
   console.log("client ready");
+  client.user?.setActivity("try `./nasa help`");
 });
 
 client.on(Discord.Events.MessageCreate, (message: Discord.Message<boolean>) => {
