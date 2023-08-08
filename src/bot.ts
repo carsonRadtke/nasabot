@@ -2,6 +2,7 @@ import * as Discord from "discord.js";
 import * as Process from "node:process";
 import * as ArgParse from "./argparse";
 import * as Commands from "./commands";
+import { getEnv } from "./services/environ";
 
 const commandPrefixes = ["./nasa"];
 
@@ -22,4 +23,4 @@ client.on(Discord.Events.MessageCreate, (message: Discord.Message<boolean>) => {
   Commands.handle(message, ArgParse.parse(content));
 });
 
-client.login(Process.env["NASABOT_TOKEN"]);
+client.login(getEnv("NASABOT_TOKEN"));
