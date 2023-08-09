@@ -25,19 +25,19 @@ export abstract class AbstractAPICommand extends AbstractCommand {
   ): Promise<AbstractResponseSchema>;
   abstract buildResponse(response: AbstractResponseSchema): string;
 
+  async getResponse(argv: string[]): Promise<string> {
+    return this.buildResponse(await this.makeRequest(this.buildRequest(argv)));
+  }
+
   override async respond(
     message: Discord.Message<boolean>,
     argv: string[],
   ): Promise<Discord.Message<boolean>> {
-    const request = this.buildRequest(argv);
-    let response: AbstractResponseSchema;
     try {
-      response = await this.makeRequest(request);
+      return message.reply(await this.getResponse(argv));
     } catch (err: unknown) {
       const errorRes = err as ErrorResponseSchema;
       return message.reply(`Error: ${errorRes.msg}`);
     }
-    const payload = this.buildResponse(response);
-    return message.reply(payload);
   }
 }
