@@ -8,7 +8,7 @@
     "build": "npx tsc",
     "format": "npx prettier --write .",
     "format-check": "npx prettier --check .",
-    "lint": "npx tslint src/**/*.ts"
+    "lint": "npx tslint src/*.ts src/**/*.ts"
   },
   "keywords": [
     "discord",

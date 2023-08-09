@@ -16,7 +16,7 @@ client.on(Discord.Events.ClientReady, (_cli: Discord.Client<true>) => {
   // tslint:disable-next-line:no-console
   console.log("client ready");
   client.user?.setActivity("try `./nasa help`");
-  if (getEnv("APOD_CHANNEL", "") != "") {
+  if (getEnv("APOD_CHANNEL", "") !== "") {
     Cron.schedule("0 5 * * *", () => {
       client.channels
         .fetch(getEnv("APOD_CHANNEL"))
