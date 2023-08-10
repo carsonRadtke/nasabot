@@ -8,6 +8,9 @@ Implemented endpoints:
 
 ### Getting Started
 
+If you want to add this bot to your Discord server, click
+[here](https://discord.com/api/oauth2/authorize?client_id=701258422498099200&permissions=10240&scope=bot).
+
 If you want to host your own instance of the bot:
 
 ```
@@ -16,8 +19,9 @@ $ npm run build
 $ NASABOT_TOKEN=<bot_token> API_KEY=<api_key> node build.bot.js
 ```
 
-If you want to add this bot to your Discord server, click
-[here](https://discord.com/api/oauth2/authorize?client_id=701258422498099200&permissions=10240&scope=bot).
+There is an optional environment variable `APOD_CHANNEL`. This specifies the channel id
+that the bot will automatically post the Astronomy Picture of the Day to at 5am (bot
+time).
 
 ### Using the bot
 
