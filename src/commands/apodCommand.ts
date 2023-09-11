@@ -63,7 +63,7 @@ export class APODCommand extends AbstractAPICommand {
     return [
       `${response.title} ${copyright}`,
       response.explanation,
-      response.media_type == 'video' ? response.url : response.hdurl,
+      response.media_type == "video" ? response.url : response.hdurl,
     ].join("\n");
   }
 }
