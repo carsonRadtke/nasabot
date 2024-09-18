@@ -1,0 +1,31 @@
+Terms of Service for nasabot
+
+1. Acceptance of Terms
+By using nasabot, you agree to be bound by these Terms of Service. If you do not agree
+to these terms, please do not use nasabot.
+
+2. Description of Service
+nasabot is a Discord bot that uses the public api.nasa.gov to provide various
+space-related information.
+
+3. Use of Service
+You agree to use nasabot in compliance with all applicable laws and regulations. You
+must not use nasabot for any unlawful or prohibited activities.
+
+4. Data and Privacy
+nasabot does not collect or store any personal data from users.
+
+5. Limitation of Liability
+Nasabot is provided "as is" without any warranties of any kind. We are not liable for
+any damages or losses resulting from the use of nasabot.
+
+6. Changes to Terms
+We reserve the right to modify these Terms of Service at any time. Any changes will be
+posted on this page, and your continued use of nasabot constitutes acceptance of the new
+terms.
+
+7. Contact Information
+If you have any questions about these Terms of Service, please contact us at
+https://github.com/carsonRadtke/nasabot/issues.
+
+Last updated: Sept 18, 2024
