@@ -1,57 +1,29 @@
-## NASA Bot
+# nasabot
 
-Access [api.nasa.gov](https://api.nasa.gov) from your Discord server!
+Discord bot to interact with https://api.nasa.gov!
 
-Implemented endpoints:
-
-- [APOD](https://apod.nasa.gov/apod/astropix.html) - Astronomy Picture of the Day
-
-### Getting Started
-
-If you want to add this bot to your Discord server, click
-[here](https://discord.com/api/oauth2/authorize?client_id=701258422498099200&permissions=10240&scope=bot).
-
-If you want to host your own instance of the bot:
+## Example
 
 ```
-$ npm install
-$ npm run build
-$ NASABOT_TOKEN=<bot_token> API_KEY=<api_key> node build.bot.js
+> ./nasabot apod 
 ```
 
-There is an optional environment variable `APOD_CHANNEL`. This specifies the channel id
-that the bot will automatically post the Astronomy Picture of the Day to at 5am (bot
-time).
+![alt text](assets/example.png)
 
-### Using the bot
+## Getting started
 
-Example:
-`./nasa apod`
+### Host your own nasabot
 
-```
-NGC 1360: The Robin's Egg Nebula by Dong Liang
-This pretty nebula lies some 1,500 light-years away, its shape and color in this
-telescopic view reminiscent of a robin's egg. The cosmic cloud spans about 3
-light-years, nestled securely within the boundaries of the southern constellation
-Fornax. Recognized as a planetary nebula, egg-shaped NGC 1360 doesn't represent a
-beginning though. Instead it corresponds to a brief and final phase in the evolution of
-an aging star. In fact, visible at the center of the nebula, the central star of NGC
-1360 is known to be a binary star system likely consisting of two evolved white dwarf
-stars, less massive but much hotter than the Sun.  Their intense and otherwise invisible
-ultraviolet radiation has stripped away electrons from the atoms in their mutually
-surrounding gaseous shroud. The predominant blue-green hue of NGC 1360 seen here is the
-strong emission produced as electrons recombine with doubly ionized oxygen atoms.
+```bash
+$ docker build -t nasabot-docker .
+$ docker run -e NASA_API_TOKEN -e DISCORD_BOT_API_TOKEN -t nasabot-docker
 ```
 
-<img src="https://apod.nasa.gov/apod/image/2308/ngc1360_v2.jpg">
+Note: Both discord.js and api.nasa.gov require an API token to interact with their
+systems. This information is passed to the application via the environment. You can find
+detailed descriptions about these fields in [assets/envvars.csv](envvars.csv).
 
-### Contributing
+### Add nasabot to your server 
 
-Feel free to put up a PR! There are a number of endpoints available at
-[api.nasa.gov](https://api.nasa.gov) that the bot could utilize.
-
-In order to emulate the pipeline locally, you will need to:
-
-```
-$ npm install --save-dev
-```
+If you don't want to host your own instance, feel free to use mine!
+[link](https://discord.com/oauth2/authorize?client_id=701258422498099200)

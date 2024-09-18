@@ -1,42 +1,72 @@
+import "process";
 import * as Discord from "discord.js";
-import * as ArgParse from "./argparse";
-import * as Commands from "./commands";
-import * as Cron from "node-cron";
-import { getEnv } from "./services/environ";
-import { APODCommand } from "./commands/apodCommand";
 
-const commandPrefixes = ["./nasa"];
+const DiscordAPIToken = process.env["DISCORD_BOT_API_TOKEN"];
+if (!DiscordAPIToken) {
+  console.error("Error: Discord API Token is not provided. Exiting.");
+  process.exit(1);
+}
 
-const client = new Discord.Client({
-  intents: ["MessageContent", "Guilds", "DirectMessages", "GuildMessages"],
+const NASAAPIToken = process.env["NASA_API_TOKEN"];
+if (!NASAAPIToken) {
+  console.error("Error: NASA API Token is not provided. Exiting.");
+  process.exit(1);
+}
+
+function BuildAPODReply(json: any): string {
+  return [
+    `**${json.title}** (${json.date})`,
+    `${json.explanation}`,
+    `${json.copyright}`,
+    `${json.hdurl ?? json.url}`,
+  ]
+    .filter((x) => x !== undefined)
+    .join("\n");
+}
+
+async function ReplyWithAPOD(msg: Discord.Message, _args: string[]) {
+  const response = await fetch(
+    "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY"
+  );
+  const json = await response.json();
+  const reply_contents = BuildAPODReply(json);
+  await msg.reply(reply_contents);
+}
+
+async function HandleMessage(msg: Discord.Message) {
+  const [command, subcommand, ...args] = msg.content.split(" ");
+  switch (subcommand) {
+    case "apod":
+      await ReplyWithAPOD(msg, args);
+      break;
+    case "exit":
+      await msg.reply("Goodbye!");
+      process.exit(0);
+    case "help":
+    case undefined:
+    default:
+      await msg.reply(`Usage: ${command} <subcommand> [<subcommand_args>]`);
+      break;
+  }
+}
+
+const Client = new Discord.Client({
+  intents: ["DirectMessages", "GuildMessages", "Guilds", "MessageContent"],
   partials: [Discord.Partials.Message, Discord.Partials.Channel],
 });
 
-client.on(Discord.Events.ClientReady, (_cli: Discord.Client<true>) => {
-  // tslint:disable-next-line:no-console
-  console.log("client ready");
-  client.user?.setActivity("try `./nasa help`");
-  if (getEnv("APOD_CHANNEL", "") !== "") {
-    Cron.schedule("0 5 * * *", () => {
-      client.channels
-        .fetch(getEnv("APOD_CHANNEL"))
-        .then((channel: Discord.Channel | null) => {
-          if (channel?.isTextBased()) {
-            const dmChannel = channel as Discord.TextChannel;
-            new APODCommand().getResponse([]).then((text: string) => {
-              dmChannel.send(text);
-            });
-          }
-        });
-    });
+Client.on(Discord.Events.ClientReady, (cli: Discord.Client) => {
+  console.info(`Connected as ${cli.user?.tag}`);
+});
+
+Client.on(Discord.Events.MessageCreate, async (msg: Discord.Message) => {
+  const { content } = msg;
+  if (content.startsWith("./nasabot")) {
+    if (msg.channel instanceof Discord.TextChannel) {
+      msg.channel.sendTyping();
+    }
+    await HandleMessage(msg);
   }
 });
 
-client.on(Discord.Events.MessageCreate, (message: Discord.Message<boolean>) => {
-  const { content } = message;
-  if (!commandPrefixes.some((pre) => content.startsWith(pre))) return;
-
-  Commands.handle(message, ArgParse.parse(content));
-});
-
-client.login(getEnv("NASABOT_TOKEN"));
+Client.login(DiscordAPIToken);
