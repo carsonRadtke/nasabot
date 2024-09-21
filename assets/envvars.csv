@@ -1,3 +1,6 @@
 Variable,Required,Usage,
 DISCORD_BOT_API_TOKEN,Yes,API token to authenticate with discord,
 NASA_API_TOKEN,Yes,API token to authenticate with api.nasa.gov,
+AZURE_ACCOUNT,Yes,Account that owns the table,
+AZURE_ACCOUNT_KEY,Yes,Account key associated with AZURE_ACCOUNT,
+AZURE_TABLE_NAME,Yes,Table that stores existing subscriptions,

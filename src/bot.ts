@@ -1,21 +1,24 @@
 import "process";
 import * as Discord from "discord.js";
+import { AzureNamedKeyCredential, TableClient } from "@azure/data-tables";
 
-const DiscordBotAPIToken = process.env["DISCORD_BOT_API_TOKEN"];
-if (!DiscordBotAPIToken) {
-  console.error("Error: Discord API Token is not provided. Exiting.");
-  process.exit(1);
+const GetRequiredEnvVar = (name: string): string => {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`Error: ${name} was not provided. Exiting.`);
+    process.exit(1);
+  }
+  return value;
 }
 
+const DiscordBotAPIToken = GetRequiredEnvVar("DISCORD_BOT_API_TOKEN");
+const NASAAPIToken = GetRequiredEnvVar("NASA_API_TOKEN");
+const AzureAccount = GetRequiredEnvVar("AZURE_ACCOUNT");
+const AzureAccountKey = GetRequiredEnvVar("AZURE_ACCOUNT_KEY");
+const AzureTableName = GetRequiredEnvVar("AZURE_TABLE_NAME");
+
+const APODUrl = `https://api.nasa.gov/planetary/apod?api_key=${NASAAPIToken}`;
 const Subscriptions: string[] = [];
-
-const NASAAPIToken = process.env["NASA_API_TOKEN"];
-if (!NASAAPIToken) {
-  console.error("Error: NASA API Token is not provided. Exiting.");
-  process.exit(1);
-}
-
-const APOD_URL = `https://api.nasa.gov/planetary/apod?api_key=${NASAAPIToken}`;
 
 function BuildAPODReply(json: any): string {
   return [
@@ -28,11 +31,27 @@ function BuildAPODReply(json: any): string {
     .join("\n");
 }
 
-async function ReplyWithAPOD(msg: Discord.Message, _args: string[]) {
-  const response = await fetch(APOD_URL);
+async function MakeAPODRequest(): Promise<any> {
+  // TODO (@cradtke): This changes everyday at midnight (timezone?); cache it.
+  const response = await fetch(APODUrl);
   const json = await response.json();
-  const reply_contents = BuildAPODReply(json);
+  return BuildAPODReply(json);
+};
+
+async function ReplyWithAPOD(msg: Discord.Message, _args: string[]) {
+  const reply_contents = await MakeAPODRequest();
   await msg.reply(reply_contents);
+}
+
+function getTableClient(): TableClient {
+  const credential = new AzureNamedKeyCredential(AzureAccount, AzureAccountKey);
+  const url = `https://${AzureAccount}.table.core.windows.net`;
+  return new TableClient(url, AzureTableName, credential);
+}
+
+async function FlushSubscriptions() {
+  const client = getTableClient();
+  await client.updateEntity({ partitionKey: "", rowKey: "", SubscribedChannels: JSON.stringify(Subscriptions) }, "Replace");
 }
 
 async function ReplyWithEnrollment({ channel }: Discord.Message, _args: string[]) {
@@ -41,12 +60,15 @@ async function ReplyWithEnrollment({ channel }: Discord.Message, _args: string[]
       await channel.send("This channel is already subscribed to daily updates.");
     } else {
       Subscriptions.push(channel.id);
-      await channel.send("This channel will receieve daily APOD updates!");
+      // TODO (@cradtke): This is not efficient; we should batch these up.
+      await FlushSubscriptions();
+      await channel.send("This channel will receive daily APOD updates!");
     }
   }
 }
 
 async function ReplyWithRestart(msg: Discord.Message, _args: string[]): Promise<never> {
+  // TODO (@cradtke): How can I make sure only an authorized sender can invoke this?
   await msg.reply("Restarting...")
   process.exit(1);
 }
@@ -102,15 +124,22 @@ Client.on(Discord.Events.MessageCreate, async (msg: Discord.Message) => {
 });
 
 async function LoadSubscriptions() {
-  // TODO (@cradtke): NYI - Need to load subscriptions from a database for persistence.
+  const client = getTableClient();
+  const entity = await client.getEntity("", "");
+  const channels: string = entity.SubscribedChannels as string;
+  Subscriptions.push(...JSON.parse(channels));
+  for (const subscription of Subscriptions) {
+    const channel = await Client.channels.fetch(subscription);
+    if (channel instanceof Discord.TextChannel) {
+      await channel.send("I'm back! I'll continue to send daily updates here.");
+    }
+  }
 }
 
 function StartSubscriptionTimer() {
   const secondsToMidnight = (24 * 60 * 60) - (new Date().getTime() / 1000) % (24 * 60 * 60);
   setTimeout(async () => {
-    const response = await fetch(APOD_URL);
-    const json = await response.json();
-    const reply_contents = BuildAPODReply(json);
+    const reply_contents = await MakeAPODRequest();
     for (const subscription of Subscriptions) {
       const channel = await Client.channels.fetch(subscription);
       if (channel instanceof Discord.TextChannel) {
