@@ -21,7 +21,7 @@ $ docker run -e NASA_API_TOKEN -e DISCORD_BOT_API_TOKEN -t nasabot-docker
 
 Note: Both discord.js and api.nasa.gov require an API token to interact with their
 systems. This information is passed to the application via the environment. You can find
-detailed descriptions about these fields in [assets/envvars.csv](envvars.csv).
+detailed descriptions about these fields in [./assets/envvars.csv](envvars.csv).
 
 ### Add nasabot to your server 
 
