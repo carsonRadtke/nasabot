@@ -48,15 +48,39 @@ function BuildAPODReply(json: APODResponse): string {
   return json.repr();
 }
 
-async function MakeAPODRequest(): Promise<string> {
-  // TODO (@cradtke): This changes everyday at midnight (timezone?); cache it.
-  const response = await fetch(APODUrl);
-  if (response.ok) {
-    const data = await response.json() as APODResponse;
-    return BuildAPODReply(data);
-  } else {
-    return `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText})`;
+class APODRequestCache {
+  private static CachedValue?: Promise<string> = undefined;
+  private static LastUpdated?: Date = undefined;
+
+  private static ValidCache(): boolean {
+    if (APODRequestCache.CachedValue === undefined) return false;
+    if (APODRequestCache.LastUpdated === undefined) return false;
+    const now = new Date();
+    if (now.getDay() !== APODRequestCache.LastUpdated.getDay()) return false;
+    return true;
   }
+
+  private static async MakeRequestHelper(): Promise<string> {
+    const response = await fetch(APODUrl);
+    if (response.ok) {
+      const data = await response.json() as APODResponse;
+      return BuildAPODReply(data);
+    } else {
+      return `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText})`;
+    }
+  }
+
+  public static MakeRequest(cacheBuster: boolean = false): Promise<string> {
+    if (cacheBuster || !APODRequestCache.ValidCache()) {
+      APODRequestCache.LastUpdated = new Date();
+      APODRequestCache.CachedValue = APODRequestCache.MakeRequestHelper();
+    }
+    return APODRequestCache.CachedValue!;
+  }
+}
+
+async function MakeAPODRequest(): Promise<string> {
+  return APODRequestCache.MakeRequest();
 };
 
 async function ReplyWithAPOD(msg: Discord.Message) {
@@ -81,29 +105,19 @@ async function ReplyWithEnrollment({ channel }: Discord.Message) {
       await channel.send("This channel is already subscribed to daily updates.");
     } else {
       Subscriptions.push(channel.id);
-      // TODO (@cradtke): This is not efficient; we should batch these up.
-      await FlushSubscriptions();
       await channel.send("This channel will receive daily APOD updates!");
     }
   }
-}
-
-async function ReplyWithRestart(msg: Discord.Message): Promise<never> {
-  // TODO (@cradtke): How can I make sure only an authorized sender can invoke this?
-  //                  ...Without having to hard-code the user ID?
-  await msg.reply("Restarting...")
-  process.exit(1);
 }
 
 async function ReplyWithHelp(msg: Discord.Message) {
   await msg.reply(HelpMessage());
 }
 
-const Commands: { [command: string]: { hidden: boolean, description: string, handler: (msg: Discord.Message) => Promise<void> } } = {
-  "subscribe": { hidden: false, description: "Subscribe to daily APOD updates", handler: ReplyWithEnrollment },
-  "apod": { hidden: false, description: "Get the Astronomy Picture of the Day", handler: ReplyWithAPOD },
-  "help": { hidden: false, description: "Show this help message", handler: ReplyWithHelp },
-  "!!!restart!!!": { hidden: true, description: "Restart the bot", handler: ReplyWithRestart },
+const Commands: { [command: string]: { description: string, handler: (msg: Discord.Message) => Promise<void> } } = {
+  "subscribe": { description: "Subscribe to daily APOD updates", handler: ReplyWithEnrollment },
+  "apod": { description: "Get the Astronomy Picture of the Day", handler: ReplyWithAPOD },
+  "help": { description: "Show this help message", handler: ReplyWithHelp },
 }
 
 function HelpMessage(): string {
@@ -111,7 +125,7 @@ function HelpMessage(): string {
     "```",
     `Usage: ${process.argv[1]} <command>`,
     `Available commands:`,
-    ...Object.entries(Commands).filter(([_, { hidden }]) => !hidden).map(([cmd, { description }]) => `\t- ${cmd}: ${description}`),
+    ...Object.entries(Commands).map(([cmd, { description }]) => `\t- ${cmd}: ${description}`),
     "```",
   ].join("\n");
 }
@@ -139,10 +153,10 @@ async function LoadSubscriptions() {
   }
 }
 
-function StartSubscriptionTimer() {
-  // TODO (@cradtke): This is time-zone dependent; currently midnight UTC.
-  const secondsToMidnight = (24 * 60 * 60) - (new Date().getTime() / 1000) % (24 * 60 * 60);
-  setTimeout(async () => {
+function StartSubscriptionTimers() {
+  // 5am UTC is 12am Central
+  const secondsTo5AM = (5 * 60 * 60) - (new Date().getTime() / 1000) % (24 * 60 * 60);
+  const PostAPODToSubscriptionsTimer = async () => {
     const reply_contents = await MakeAPODRequest();
     for (const subscription of Subscriptions) {
       const channel = await Client.channels.fetch(subscription);
@@ -150,8 +164,16 @@ function StartSubscriptionTimer() {
         await channel.send(reply_contents);
       }
     }
-    StartSubscriptionTimer();
-  }, secondsToMidnight * 1000);
+  };
+
+  const secondsToNextHour = (60 * 60) - (new Date().getTime() / 1000) % (60 * 60);
+  const FlushSubscriptionsTimer = async () => {
+    await FlushSubscriptions();
+  };
+
+  setTimeout(PostAPODToSubscriptionsTimer, secondsTo5AM * 1000);
+  setTimeout(FlushSubscriptionsTimer, secondsToNextHour * 1000);
+  setTimeout(StartSubscriptionTimers, /* ten minutes: */ 10 * 60 * 1000);
 }
 
 const Client = new Discord.Client({
@@ -164,6 +186,7 @@ Client.on(Discord.Events.ClientReady, (cli: Discord.Client) => {
   if (cli.user !== null) {
     cli.user.setActivity("nasabot", { type: Discord.ActivityType.Custom, state: "./nasabot help" });
   }
+  process.on("exit", async () => await FlushSubscriptions());
 });
 
 Client.on(Discord.Events.MessageCreate, async (msg: Discord.Message) => {
@@ -178,6 +201,6 @@ Client.on(Discord.Events.MessageCreate, async (msg: Discord.Message) => {
 
 Client.login(DiscordBotAPIToken).then(async () => {
   await LoadSubscriptions();
-  StartSubscriptionTimer();
+  StartSubscriptionTimers();
 });
 
