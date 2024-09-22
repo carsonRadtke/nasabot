@@ -29,8 +29,10 @@ jobs:
         login-server: ${{ secrets.ACR_LOGIN_SERVER }}
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }} 
-    - run: |
+    - name: Build and push image to Azure Container Registry
+      run: |
         docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/bots/nasabot:latest .
         docker push ${{ secrets.ACR_LOGIN_SERVER }}/bots/nasabot:latest
-    - run: |
+    - name: Restart Azure Container Instance
+      run: |
         az container restart -n ${{ secrets.ACI_NAME }} -g ${{ secrets.ACI_RESOURCE_GROUP }}
