@@ -32,3 +32,5 @@ jobs:
     - run: |
         docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/bots/nasabot:latest .
         docker push ${{ secrets.ACR_LOGIN_SERVER }}/bots/nasabot:latest
+    - run: |
+        az container restart -n ${{ secrets.ACI_NAME }} -g ${{ secrets.ACI_RESOURCE_GROUP }}
