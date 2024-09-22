@@ -85,7 +85,7 @@ async function MakeAPODRequest(): Promise<string> {
   return APODRequestCache.MakeRequest();
 };
 
-async function ReplyWithAPOD(msg: Discord.Message) {
+async function ReplyWithAPOD(_command: string, _args: string[], msg: Discord.Message) {
   const reply_contents = await MakeAPODRequest();
   await msg.reply(reply_contents);
 }
@@ -101,7 +101,7 @@ async function FlushSubscriptions() {
   await client.updateEntity({ partitionKey: "", rowKey: "", SubscribedChannels: JSON.stringify(Subscriptions) }, "Replace");
 }
 
-async function ReplyWithEnrollment({ channel }: Discord.Message) {
+async function ReplyWithEnrollment(_command: string, _args: string[], { channel }: Discord.Message) {
   if (CanSendOnChannel(channel)) {
     if (Subscriptions.includes(channel.id)) {
       await channel.send("This channel is already subscribed to daily updates.");
@@ -112,20 +112,20 @@ async function ReplyWithEnrollment({ channel }: Discord.Message) {
   }
 }
 
-async function ReplyWithHelp(msg: Discord.Message) {
-  await msg.reply(HelpMessage());
+async function ReplyWithHelp(cmd: string, _args: string[], msg: Discord.Message) {
+  await msg.reply(HelpMessage(cmd));
 }
 
-const Commands: { [command: string]: { description: string, handler: (msg: Discord.Message) => Promise<void> } } = {
+const Commands: { [command: string]: { description: string, handler: (command: string, args: string[], msg: Discord.Message) => Promise<void> } } = {
   "subscribe": { description: "Subscribe to daily APOD updates", handler: ReplyWithEnrollment },
   "apod": { description: "Get the Astronomy Picture of the Day", handler: ReplyWithAPOD },
   "help": { description: "Show this help message", handler: ReplyWithHelp },
 }
 
-function HelpMessage(): string {
+function HelpMessage(command: string): string {
   return [
     "```",
-    `Usage: ${process.argv[1]} <command>`,
+    `Usage: ${command} <command>`,
     `Available commands:`,
     ...Object.entries(Commands).map(([cmd, { description }]) => `\t- ${cmd}: ${description}`),
     "```",
@@ -133,13 +133,9 @@ function HelpMessage(): string {
 }
 
 async function HandleMessage(msg: Discord.Message) {
-  const [_, subcommand] = msg.content.split(" ").map(x => x.trim());
-  const handler = Commands[subcommand];
-  if (handler) {
-    await handler.handler(msg);
-  } else {
-    await msg.reply(HelpMessage());
-  }
+  const [command, subcommand, ...args] = msg.content.split(" ").map(x => x.trim());
+  const handler = Commands[subcommand] ?? ReplyWithHelp;
+  await handler.handler(command, args, msg);
 }
 
 async function LoadSubscriptions() {
