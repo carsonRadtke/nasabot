@@ -35,4 +35,5 @@ jobs:
         docker push ${{ secrets.ACR_LOGIN_SERVER }}/bots/nasabot:latest
     - name: Restart Azure Container Instance
       run: |
-        az container restart -n ${{ secrets.ACI_NAME }} -g ${{ secrets.ACI_RESOURCE_GROUP }}
+        az container restart -n ${{ secrets.ACI_NAME }} -g ${{ secrets.ACI_RESOURCE_GROUP }} \
+          || az container start -n  ${{ secrets.ACI_NAME }} -g ${{ secrets.ACI_RESOURCE_GROUP }}
