@@ -30,12 +30,14 @@ class APODResponse {
   public title?: string = undefined;
   public url?: string = undefined;
 
-  public repr(): string {
+  static repr(self: APODResponse): string {
+    // TODO (@cradtke): This is a bit of a mess, but it's fine for now. Need to copy the
+    //                  APODResponse prototype info to the object received from the API.
     return [
-      `**${this.title}** (${this.date})`,
-      `${this.explanation}`,
-      `${this.copyright}`,
-      `${this.hdurl ?? this.url}`,
+      `**${self.title}** (${self.date})`,
+      `${self.explanation}`,
+      `${self.copyright}`,
+      `${self.hdurl ?? self.url}`,
     ].join("\n");
   }
 };
@@ -45,7 +47,7 @@ function CanSendOnChannel(channel: Discord.Channel) {
 }
 
 function BuildAPODReply(json: APODResponse): string {
-  return json.repr();
+  return APODResponse.repr(json);
 }
 
 class APODRequestCache {
