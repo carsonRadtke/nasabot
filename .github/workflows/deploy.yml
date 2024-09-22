@@ -11,32 +11,34 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Login to Azure
-      uses: azure/login@v1
+      uses: azure/login@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Build and push Docker image
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+    # - name: Build and push Docker image
+    #   uses: azure/docker-login@v2
+    #   with:
+    #     login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+    #     username: ${{ secrets.REGISTRY_USERNAME }}
+    #     password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Build Docker image
-      run: |
-        docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/nasabot-container:latest .
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/nasabot-container:latest
+    # - name: Build Docker image
+    #   run: |
+    #     docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/nasabot-container:latest .
+    #     docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/nasabot-container:latest
 
-    - name: Deploy to Azure Container Instance
-      uses: azure/aci-deploy@v1
-      with:
-        resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
-        dns-name-label: nasabot-container
-        image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/nasabot-container:latest
-        name: nasabot-container
-        location: ${{ secrets.AZURE_LOCATION }}
-        registry-username: ${{ secrets.REGISTRY_USERNAME }}
-        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+    # - name: Deploy to Azure Container Instance
+    #   uses: azure/aci-deploy@v1
+    #   with:
+    #     resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+    #     dns-name-label: nasabot-container
+    #     image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/nasabot-container:latest
+    #     name: nasabot-container
+    #     location: ${{ secrets.AZURE_LOCATION }}
+    #     registry-username: ${{ secrets.REGISTRY_USERNAME }}
+    #     registry-password: ${{ secrets.REGISTRY_PASSWORD }}
