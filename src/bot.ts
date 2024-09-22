@@ -4,7 +4,7 @@ import { AzureNamedKeyCredential, TableClient } from "@azure/data-tables";
 
 const GetRequiredEnvVar = (name: string): string => {
   const value = process.env[name];
-  if (!value) {
+  if (value === undefined) {
     console.error(`Error: ${name} was not provided. Exiting.`);
     process.exit(1);
   }
@@ -19,6 +19,10 @@ const AzureTableName = GetRequiredEnvVar("AZURE_TABLE_NAME");
 
 const APODUrl = `https://api.nasa.gov/planetary/apod?api_key=${NASAAPIToken}`;
 const Subscriptions: string[] = [];
+
+function CanSendOnChannel(channel: Discord.Channel) {
+  return channel instanceof Discord.TextChannel || channel instanceof Discord.DMChannel;
+}
 
 function BuildAPODReply(json: any): string {
   return [
@@ -38,7 +42,7 @@ async function MakeAPODRequest(): Promise<any> {
   return BuildAPODReply(json);
 };
 
-async function ReplyWithAPOD(msg: Discord.Message, _args: string[]) {
+async function ReplyWithAPOD(msg: Discord.Message) {
   const reply_contents = await MakeAPODRequest();
   await msg.reply(reply_contents);
 }
@@ -54,8 +58,8 @@ async function FlushSubscriptions() {
   await client.updateEntity({ partitionKey: "", rowKey: "", SubscribedChannels: JSON.stringify(Subscriptions) }, "Replace");
 }
 
-async function ReplyWithEnrollment({ channel }: Discord.Message, _args: string[]) {
-  if (channel instanceof Discord.TextChannel) {
+async function ReplyWithEnrollment({ channel }: Discord.Message) {
+  if (CanSendOnChannel(channel)) {
     if (Subscriptions.includes(channel.id)) {
       await channel.send("This channel is already subscribed to daily updates.");
     } else {
@@ -67,17 +71,17 @@ async function ReplyWithEnrollment({ channel }: Discord.Message, _args: string[]
   }
 }
 
-async function ReplyWithRestart(msg: Discord.Message, _args: string[]): Promise<never> {
+async function ReplyWithRestart(msg: Discord.Message): Promise<never> {
   // TODO (@cradtke): How can I make sure only an authorized sender can invoke this?
   await msg.reply("Restarting...")
   process.exit(1);
 }
 
-async function ReplyWithHelp(msg: Discord.Message, _args: string[]) {
+async function ReplyWithHelp(msg: Discord.Message) {
   await msg.reply(HelpMessage());
 }
 
-const Commands: { [command: string]: { hidden: boolean, description: string, handler: (msg: Discord.Message, args: string[]) => Promise<void> } } = {
+const Commands: { [command: string]: { hidden: boolean, description: string, handler: (msg: Discord.Message) => Promise<void> } } = {
   "subscribe": { hidden: false, description: "Subscribe to daily APOD updates", handler: ReplyWithEnrollment },
   "apod": { hidden: false, description: "Get the Astronomy Picture of the Day", handler: ReplyWithAPOD },
   "help": { hidden: false, description: "Show this help message", handler: ReplyWithHelp },
@@ -87,7 +91,7 @@ const Commands: { [command: string]: { hidden: boolean, description: string, han
 function HelpMessage(): string {
   return [
     "```",
-    `Usage: ${process.argv[1]} <command> [args...]`,
+    `Usage: ${process.argv[1]} <command>`,
     `Available commands:`,
     ...Object.entries(Commands).filter(([_, { hidden }]) => !hidden).map(([cmd, { description }]) => `\t- ${cmd}: ${description}`),
     "```",
@@ -95,10 +99,10 @@ function HelpMessage(): string {
 }
 
 async function HandleMessage(msg: Discord.Message) {
-  const [_, subcommand, ...args] = msg.content.split(" ").map(x => x.trim());
+  const [_, subcommand] = msg.content.split(" ").map(x => x.trim());
   const handler = Commands[subcommand];
   if (handler) {
-    await handler.handler(msg, args);
+    await handler.handler(msg);
   } else {
     await msg.reply(HelpMessage());
   }
@@ -116,7 +120,7 @@ Client.on(Discord.Events.ClientReady, (cli: Discord.Client) => {
 Client.on(Discord.Events.MessageCreate, async (msg: Discord.Message) => {
   const { content } = msg;
   if (content.startsWith("./nasabot")) {
-    if (msg.channel instanceof Discord.TextChannel) {
+    if (CanSendOnChannel(msg.channel)) {
       msg.channel.sendTyping();
     }
     await HandleMessage(msg);
@@ -130,7 +134,7 @@ async function LoadSubscriptions() {
   Subscriptions.push(...JSON.parse(channels));
   for (const subscription of Subscriptions) {
     const channel = await Client.channels.fetch(subscription);
-    if (channel instanceof Discord.TextChannel) {
+    if (channel !== null && CanSendOnChannel(channel)) {
       await channel.send("I'm back! I'll continue to send daily updates here.");
     }
   }
@@ -142,7 +146,7 @@ function StartSubscriptionTimer() {
     const reply_contents = await MakeAPODRequest();
     for (const subscription of Subscriptions) {
       const channel = await Client.channels.fetch(subscription);
-      if (channel instanceof Discord.TextChannel) {
+      if (channel !== null && CanSendOnChannel(channel)) {
         await channel.send(reply_contents);
       }
     }
