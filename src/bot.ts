@@ -37,6 +37,7 @@ function BuildAPODReply(json: any): string {
 
 async function MakeAPODRequest(): Promise<any> {
   // TODO (@cradtke): This changes everyday at midnight (timezone?); cache it.
+  // TODO (@cradtke): What happens if api.nasa.gov is down? Or if we're rate-limited?
   const response = await fetch(APODUrl);
   const json = await response.json();
   return BuildAPODReply(json);
@@ -73,6 +74,7 @@ async function ReplyWithEnrollment({ channel }: Discord.Message) {
 
 async function ReplyWithRestart(msg: Discord.Message): Promise<never> {
   // TODO (@cradtke): How can I make sure only an authorized sender can invoke this?
+  //                  ...Without having to hard-code the user ID?
   await msg.reply("Restarting...")
   process.exit(1);
 }
@@ -108,25 +110,6 @@ async function HandleMessage(msg: Discord.Message) {
   }
 }
 
-const Client = new Discord.Client({
-  intents: ["DirectMessages", "GuildMessages", "Guilds", "MessageContent"],
-  partials: [Discord.Partials.Message, Discord.Partials.Channel],
-});
-
-Client.on(Discord.Events.ClientReady, (cli: Discord.Client) => {
-  console.info(`Connected as ${cli.user?.tag}`);
-});
-
-Client.on(Discord.Events.MessageCreate, async (msg: Discord.Message) => {
-  const { content } = msg;
-  if (content.startsWith("./nasabot")) {
-    if (CanSendOnChannel(msg.channel)) {
-      msg.channel.sendTyping();
-    }
-    await HandleMessage(msg);
-  }
-});
-
 async function LoadSubscriptions() {
   const client = getTableClient();
   const entity = await client.getEntity("", "");
@@ -141,6 +124,7 @@ async function LoadSubscriptions() {
 }
 
 function StartSubscriptionTimer() {
+  // TODO (@cradtke): This is time-zone dependent; currently midnight UTC.
   const secondsToMidnight = (24 * 60 * 60) - (new Date().getTime() / 1000) % (24 * 60 * 60);
   setTimeout(async () => {
     const reply_contents = await MakeAPODRequest();
@@ -153,6 +137,28 @@ function StartSubscriptionTimer() {
     StartSubscriptionTimer();
   }, secondsToMidnight * 1000);
 }
+
+const Client = new Discord.Client({
+  intents: ["DirectMessages", "GuildMessages", "Guilds", "MessageContent"],
+  partials: [Discord.Partials.Message, Discord.Partials.Channel],
+});
+
+Client.on(Discord.Events.ClientReady, (cli: Discord.Client) => {
+  console.info(`Connected as ${cli.user?.tag}`);
+  if (cli.user !== null) {
+    cli.user.setActivity("nasabot", { type: Discord.ActivityType.Custom, state: "./nasabot help" });
+  }
+});
+
+Client.on(Discord.Events.MessageCreate, async (msg: Discord.Message) => {
+  const { content } = msg;
+  if (content.startsWith("./nasabot")) {
+    if (CanSendOnChannel(msg.channel)) {
+      msg.channel.sendTyping();
+    }
+    await HandleMessage(msg);
+  }
+});
 
 Client.login(DiscordBotAPIToken).then(async () => {
   await LoadSubscriptions();
