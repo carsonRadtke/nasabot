@@ -20,27 +20,43 @@ const AzureTableName = GetRequiredEnvVar("AZURE_TABLE_NAME");
 const APODUrl = `https://api.nasa.gov/planetary/apod?api_key=${NASAAPIToken}`;
 const Subscriptions: string[] = [];
 
+class APODResponse {
+  public copyright?: string = undefined;
+  public date?: string = undefined;
+  public explanation?: string = undefined;
+  public hdurl?: string = undefined;
+  public media_type?: string = undefined;
+  public service_version?: string = undefined;
+  public title?: string = undefined;
+  public url?: string = undefined;
+
+  public repr(): string {
+    return [
+      `**${this.title}** (${this.date})`,
+      `${this.explanation}`,
+      `${this.copyright}`,
+      `${this.hdurl ?? this.url}`,
+    ].join("\n");
+  }
+};
+
 function CanSendOnChannel(channel: Discord.Channel) {
   return channel instanceof Discord.TextChannel || channel instanceof Discord.DMChannel;
 }
 
-function BuildAPODReply(json: any): string {
-  return [
-    `**${json.title}** (${json.date})`,
-    `${json.explanation}`,
-    `${json.copyright}`,
-    `${json.hdurl ?? json.url}`,
-  ]
-    .filter((x) => x !== undefined)
-    .join("\n");
+function BuildAPODReply(json: APODResponse): string {
+  return json.repr();
 }
 
-async function MakeAPODRequest(): Promise<any> {
+async function MakeAPODRequest(): Promise<string> {
   // TODO (@cradtke): This changes everyday at midnight (timezone?); cache it.
-  // TODO (@cradtke): What happens if api.nasa.gov is down? Or if we're rate-limited?
   const response = await fetch(APODUrl);
-  const json = await response.json();
-  return BuildAPODReply(json);
+  if (response.ok) {
+    const data = await response.json() as APODResponse;
+    return BuildAPODReply(data);
+  } else {
+    return `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText})`;
+  }
 };
 
 async function ReplyWithAPOD(msg: Discord.Message) {

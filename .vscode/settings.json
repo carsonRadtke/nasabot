@@ -5,6 +5,7 @@
         "discordbotcontainers",
         "hdurl",
         "NASAAPI",
-        "nasabot"
+        "nasabot",
+        "repr"
     ]
 }
