@@ -16,12 +16,19 @@ Discord bot to interact with https://api.nasa.gov!
 
 ```bash
 $ docker build -t nasabot-docker .
-$ docker run -e NASA_API_TOKEN -e DISCORD_BOT_API_TOKEN -t nasabot-docker
+$ env $(cat .env | xargs) docker run -t nasabot-docker
+    -e NASA_API_TOKEN \
+    -e DISCORD_BOT_API_TOKEN \
+    -e AZURE_ACCOUNT \
+    -e AZURE_ACCOUNT_KEY \
+    -e AZURE_TABLE_NAME \
+    -e CALL_MAIN \
+    -e SKIP_HELLO
 ```
 
-Note: Both discord.js and api.nasa.gov require an API token to interact with their
-systems. This information is passed to the application via the environment. You can find
-detailed descriptions about these fields in [./assets/envvars.csv](envvars.csv).
+Note: Many systems require a form of authentication before that bot can talk to it. This
+information is passed to the application via the environment. You can find detailed
+descriptions about these fields in [./assets/envvars.csv](envvars.csv).
 
 ### Add nasabot to your server 
 
