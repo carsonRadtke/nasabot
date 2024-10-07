@@ -77,7 +77,7 @@ const SubscriptionTimers: ((bot: DiscordBot) => Promise<any>)[] = [
 export async function SubscriptionManagerInitialize(bot: DiscordBot) {
     await LoadSubscriptions(bot);
     // 5am UTC is 12am Central.
-    const secondsTo5AM = (5 * 60 * 60) - (new Date().getTime() / 1000) % (24 * 60 * 60);
+    const secondsTo5AM = (((24 + 5) * 60 * 60) - (new Date().getTime() / 1000) % (24 * 60 * 60)) % (24 * 60 * 60);
     for (const callback of SubscriptionTimers) {
         setTimeout(() => callback(bot), secondsTo5AM * 1000);
     }
