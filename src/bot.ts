@@ -104,7 +104,7 @@ function Main() {
     }
   });
 
-  Client.on(Discord.events.Error, (err: Error) => {
+  Client.on(Discord.Events.Error, (err: Error) => {
     // TODO @(carsonradtke): Can I broadcast this error somewhere? Can I report it via an Azure resource?
     console.error(err);
   });
