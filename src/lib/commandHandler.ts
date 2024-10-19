@@ -1,8 +1,9 @@
 export enum CommandKind {
-  Subscribe = "subscribe",
+  Subscribe = "sub",
   APOD = "apod",
   Help = "help",
   Unknown = "unknown",
+  Unsubscribe = "unsub",
 }
 
 export type CommandResult = {
@@ -23,6 +24,8 @@ export function HandleCommand(messageContents: string): CommandResult {
       return { kind: CommandKind.APOD, command, subcommand, args };
     case CommandKind.Help:
       return { kind: CommandKind.Help, command, subcommand, args };
+    case CommandKind.Unsubscribe:
+      return { kind: CommandKind.Unsubscribe, command, subcommand, args };
     default:
       return { kind: CommandKind.Unknown, command, subcommand, args };
   }

@@ -10,8 +10,9 @@ process.stdin.on("data", async (data) => {
   const res = HandleCommand(input);
   switch (res.kind) {
     case CommandKind.Subscribe:
-      console.log("Cannot subscribe from REPL");
-      break;
+    case CommandKind.Unsubscribe:
+      console.log("Cannot manage subscription from REPL");
+      break
     case CommandKind.APOD:
       const res = await MakeAPODRequest();
       console.log(res);

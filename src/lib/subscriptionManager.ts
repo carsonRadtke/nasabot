@@ -40,6 +40,15 @@ export function AcceptedEnrollment(channel: string): boolean {
   return false;
 }
 
+export function Unsubscribe(channel: string): boolean {
+    const index = Subscriptions.indexOf(channel);
+    if (index > -1) {
+        Subscriptions.splice(index, 1);
+        return true;
+    }
+    return false;
+}
+
 async function FlushSubscriptions() {
   const client = getTableClient();
   const updatedEntity = {

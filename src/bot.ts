@@ -6,6 +6,7 @@ import {
   AcceptedEnrollment,
   SubscriptionManagerCleanup,
   SubscriptionManagerInitialize,
+  Unsubscribe,
 } from "./lib/subscriptionManager";
 import {
   CommandKind,
@@ -40,6 +41,21 @@ async function ReplyWithEnrollment(
   }
 }
 
+async function ReplyWithUnenrollment(
+  _res: CommandResult,
+  { channel }: Discord.Message,
+) {
+  if (CanSendOnChannel(channel)) {
+    if (Unsubscribe(channel.id)) {
+      await channel.send("This channel will no longer receive daily APOD updates!");
+    } else {
+      await channel.send(
+        "This channel is not subscribed to daily APOD updates.",
+      );
+    }
+  }
+}
+
 function HelpMessage(command: string): string {
   return [
     "```",
@@ -68,6 +84,10 @@ function InitializeCommands() {
   Commands[CommandKind.Help] = {
     description: "Show this message",
     handler: ReplyWithHelp,
+  };
+  Commands[CommandKind.Unsubscribe] = {
+    description: "Unsubscribe from daily APOD updates",
+    handler: ReplyWithUnenrollment,
   };
 }
 
