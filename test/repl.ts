@@ -12,7 +12,7 @@ process.stdin.on("data", async (data) => {
     case CommandKind.Subscribe:
     case CommandKind.Unsubscribe:
       console.log("Cannot manage subscription from REPL");
-      break
+      break;
     case CommandKind.APOD:
       const res = await MakeAPODRequest();
       console.log(res);

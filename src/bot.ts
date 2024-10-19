@@ -47,7 +47,9 @@ async function ReplyWithUnenrollment(
 ) {
   if (CanSendOnChannel(channel)) {
     if (Unsubscribe(channel.id)) {
-      await channel.send("This channel will no longer receive daily APOD updates!");
+      await channel.send(
+        "This channel will no longer receive daily APOD updates!",
+      );
     } else {
       await channel.send(
         "This channel is not subscribed to daily APOD updates.",

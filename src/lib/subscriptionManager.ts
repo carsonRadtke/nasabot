@@ -41,12 +41,12 @@ export function AcceptedEnrollment(channel: string): boolean {
 }
 
 export function Unsubscribe(channel: string): boolean {
-    const index = Subscriptions.indexOf(channel);
-    if (index > -1) {
-        Subscriptions.splice(index, 1);
-        return true;
-    }
-    return false;
+  const index = Subscriptions.indexOf(channel);
+  if (index > -1) {
+    Subscriptions.splice(index, 1);
+    return true;
+  }
+  return false;
 }
 
 async function FlushSubscriptions() {
