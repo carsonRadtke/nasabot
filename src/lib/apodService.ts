@@ -24,11 +24,11 @@ class APODResponse {
     try {
       return [
         `**${this.title}** ${this.date}`,
-        //${this.alt}`,
+        `${this.alt}`,
         //`${this.explanation}`,
-        //`&copy; ${this.copyright}`,
+        `&copy; ${this.copyright}`,
         `${this.hdurl}`,
-        //`More info: ${this.permalink}`,
+        `More info: ${this.permalink}`,
       ].join("\n");
     } catch (ex) {
       return `oh shit: ${ex}`;
