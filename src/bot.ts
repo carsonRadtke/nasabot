@@ -23,7 +23,8 @@ const Commands: {
 
 async function ReplyWithAPOD(_res: CommandResult, msg: Discord.Message) {
   const reply_contents = await MakeAPODRequest();
-  await msg.reply(reply_contents);
+  await msg.reply(`${reply_contents}`);
+  //  await msg.reply(reply_contents);
 }
 
 async function ReplyWithEnrollment(
