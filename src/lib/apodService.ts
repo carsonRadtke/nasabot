@@ -1,6 +1,6 @@
 import { BotEnv } from "./environ";
 
-const APODUrl = `https://api.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=${BotEnv.NASAAPIToken}`;
+const APODUrl = `https://science.nasa.gov/wp-json/wp/v2/apod-basic?apid_key=${BotEnv.NASAAPIToken}`;
 
 class APODResponse {
   public date?: string = undefined;
