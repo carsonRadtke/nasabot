@@ -118,11 +118,15 @@ function Main() {
       if (CanSendOnChannel(msg.channel)) {
         await msg.channel.sendTyping();
       }
-      const command = HandleCommand(content);
-      await (Commands[command.kind] ?? Commands[CommandKind.Help]).handler(
-        command,
-        msg,
-      );
+      try {
+        const command = HandleCommand(content);
+        await (Commands[command.kind] ?? Commands[CommandKind.Help]).handler(
+          command,
+          msg,
+        );
+      } catch (ex) {
+        msg.reply(`sheeit: ${ex}`);
+      }
     }
   });
 
