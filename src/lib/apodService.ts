@@ -24,14 +24,18 @@ class APODResponse {
   }
 
   Render(): string {
-    return [
-      `**${this.title}** ${this.date}`,
-      `> ${this.alt}`,
-      `${this.explanation}`,
-      `&copy; ${this.copyright}`,
-      `${this.hdurl}`,
-      `More info: ${this.permalink}`,
-    ].join("\n");
+    try {
+      return [
+        `**${this.title}** ${this.date}`,
+        `> ${this.alt}`,
+        `${this.explanation}`,
+        `&copy; ${this.copyright}`,
+        `${this.hdurl}`,
+        `More info: ${this.permalink}`,
+      ].join("\n");
+    } catch (ex) {
+      return `${ex}`;
+    }
   }
 }
 
