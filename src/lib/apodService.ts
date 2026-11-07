@@ -1,6 +1,6 @@
 import { BotEnv } from "./environ";
 
-const APODUrl = `https://api.nasa.gov/planetary/apod?api_key=${BotEnv.NASAAPIToken}`;
+const APODUrl = `https://api.nasa.gov/wp-json/wp/v2/apod-basic/?api_key=${BotEnv.NASAAPIToken}`;
 
 class APODResponse {
   public date?: string = undefined;
@@ -16,8 +16,11 @@ class APODResponse {
   public hdurl?: string = undefined;
   public basic_html?: string = undefined;
   public basic_html_url?: string = undefined;
-  static FromJSON(json: any): APODResponse {
-    return Object.setPrototypeOf(json, APODResponse.prototype) as APODResponse;
+  static FromJSON(json: any): APODResponse[] {
+    return Object.setPrototypeOf(
+      json,
+      APODResponse.prototype,
+    ) as APODResponse[];
   }
 
   Render(): string {
@@ -48,7 +51,7 @@ class APODRequestCache {
     const response = await fetch(APODUrl);
     if (response.ok) {
       const json = await response.json();
-      return APODResponse.FromJSON(json).Render();
+      return APODResponse.FromJSON(json)[0].Render();
     } else {
       return `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText}\n src: ${APODUrl})`;
     }
