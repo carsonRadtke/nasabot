@@ -3,25 +3,31 @@ import { BotEnv } from "./environ";
 const APODUrl = `https://api.nasa.gov/planetary/apod?api_key=${BotEnv.NASAAPIToken}`;
 
 class APODResponse {
-  public copyright?: string = undefined;
   public date?: string = undefined;
-  public explanation?: string = undefined;
-  public hdurl?: string = undefined;
-  public media_type?: string = undefined;
-  public service_version?: string = undefined;
+  public post_id?: number = undefined;
   public title?: string = undefined;
+  public permalink?: string = undefined;
+  public media_type?: string = undefined;
+  public explanation?: string = undefined;
+  public credit?: string = undefined;
+  public copyright?: string = undefined;
+  public alt?: string = undefined;
   public url?: string = undefined;
-
+  public hdurl?: string = undefined;
+  public basic_html?: string = undefined;
+  public basic_html_url?: string = undefined;
   static FromJSON(json: any): APODResponse {
     return Object.setPrototypeOf(json, APODResponse.prototype) as APODResponse;
   }
 
   Render(): string {
     return [
-      `**${this.title}** (${this.date})`,
+      `**${this.title}** ${this.date}`,
+      `> ${this.alt}`,
       `${this.explanation}`,
-      `${this.copyright}`,
-      `${this.hdurl ?? this.url}`,
+      `&copy; ${this.copyright}`,
+      `${this.hdurl}`,
+      `More info: ${this.permalink}`,
     ].join("\n");
   }
 }
