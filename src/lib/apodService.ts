@@ -50,7 +50,7 @@ class APODRequestCache {
       const json = await response.json();
       return APODResponse.FromJSON(json).Render();
     } else {
-      return `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText})`;
+      return `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText}\n src: ${APODUrl})`;
     }
   }
 
