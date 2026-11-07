@@ -16,11 +16,8 @@ class APODResponse {
   public hdurl?: string = undefined;
   public basic_html?: string = undefined;
   public basic_html_url?: string = undefined;
-  static FromJSON(json: any): APODResponse[] {
-    return Object.setPrototypeOf(
-      json,
-      APODResponse.prototype,
-    ) as APODResponse[];
+  static FromJSON(json: any): APODResponse {
+    return Object.setPrototypeOf(json, APODResponse.prototype) as APODResponse;
   }
 
   Render(): string {
@@ -34,7 +31,7 @@ class APODResponse {
         `More info: ${this.permalink}`,
       ].join("\n");
     } catch (ex) {
-      return `${ex}`;
+      return `oh shit: ${ex}`;
     }
   }
 }
@@ -55,7 +52,7 @@ class APODRequestCache {
     const response = await fetch(APODUrl);
     if (response.ok) {
       const json = await response.json();
-      return APODResponse.FromJSON(json)[0].Render();
+      return APODResponse.FromJSON(json[0]).Render();
     } else {
       return `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText}\n src: ${APODUrl})`;
     }
