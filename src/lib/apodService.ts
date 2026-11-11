@@ -1,5 +1,6 @@
 import * as Discord from "discord.js";
 import { BotEnv } from "./environ";
+import TurndownService from "turndown";
 
 const APODUrl = `https://science.nasa.gov/wp-json/wp/v2/apod-basic?apid_key=${BotEnv.NASAAPIToken}`;
 
@@ -22,16 +23,17 @@ class APODResponse {
   }
 
   Render(): Discord.MessageReplyOptions {
+    let turndownService = new TurndownService();
     return {
       embeds: [
         new Discord.EmbedBuilder()
           .setTitle(this.title)
           .setURL(this.permalink)
           .setAuthor({ name: this.credit })
-          .setDescription(this.explanation!)
-          .setThumbnail(this.url)
+          .setDescription(turndownService.turndown(this.explanation))
           .setImage(this.hdurl)
-          .setTimestamp(new Date(this.date)),
+          .setTimestamp(new Date(this.date))
+          .setFooter({ text: this.alt }),
       ],
     };
   }
