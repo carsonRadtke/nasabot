@@ -125,7 +125,7 @@ function Main() {
           msg,
         );
       } catch (ex) {
-        msg.reply(`sheeit: ${ex}`);
+        msg.reply(`uncaught exception: ${ex}`);
       }
     }
   });

@@ -1,40 +1,44 @@
+import * as Discord from "discord.js";
 import { BotEnv } from "./environ";
 
 const APODUrl = `https://science.nasa.gov/wp-json/wp/v2/apod-basic?apid_key=${BotEnv.NASAAPIToken}`;
 
 class APODResponse {
-  public date?: string = undefined;
-  public post_id?: number = undefined;
-  public title?: string = undefined;
-  public permalink?: string = undefined;
-  public media_type?: string = undefined;
-  public explanation?: string = undefined;
-  public credit?: string = undefined;
-  public copyright?: string = undefined;
-  public alt?: string = undefined;
-  public url?: string = undefined;
-  public hdurl?: string = undefined;
-  public basic_html?: string = undefined;
-  public basic_html_url?: string = undefined;
+  public date: string = "";
+  public post_id: number = -1;
+  public title: string = "";
+  public permalink: string = "";
+  public media_type: string = "";
+  public explanation: string = "";
+  public credit: string = "";
+  public copyright: string = "";
+  public alt: string = "";
+  public url: string = "";
+  public hdurl: string = "";
+  public basic_html: string = "";
+  public basic_html_url: string = "";
   static FromJSON(json: any): APODResponse {
     return Object.setPrototypeOf(json, APODResponse.prototype) as APODResponse;
   }
 
-  Render(): string {
-    return [
-      `**${this.title}** ${this.date}`,
-      this.copyright == undefined ? "" : `© ${this.copyright}`,
-      `${this.explanation}`,
-      this.credit == undefined ? "" : `- ${this.credit}`,
-      `${this.hdurl}`,
-    ]
-      .filter((line) => line.length > 0)
-      .join("\n");
+  Render(): Discord.MessageReplyOptions {
+    return {
+      embeds: [
+        new Discord.EmbedBuilder()
+          .setTitle(this.title)
+          .setURL(this.permalink)
+          .setAuthor({ name: this.credit })
+          .setDescription(this.explanation!)
+          .setThumbnail(this.url)
+          .setImage(this.hdurl)
+          .setTimestamp(new Date(this.date)),
+      ],
+    };
   }
 }
 
 class APODRequestCache {
-  private static CachedValue?: Promise<string> = undefined;
+  private static CachedValue?: Promise<Discord.MessageReplyOptions> = undefined;
   private static LastUpdated?: Date = undefined;
 
   private static ValidCache(): boolean {
@@ -45,17 +49,21 @@ class APODRequestCache {
     return true;
   }
 
-  private static async MakeRequestHelper(): Promise<string> {
+  private static async MakeRequestHelper(): Promise<Discord.MessageReplyOptions> {
     const response = await fetch(APODUrl);
     if (response.ok) {
       const json = await response.json();
       return APODResponse.FromJSON(json[0]).Render();
     } else {
-      return `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText}\n src: ${APODUrl})`;
+      return {
+        content: `Failed to retrieve Astronomy Picture of the Day. (${response.status}: ${response.statusText}\n src: ${APODUrl})`,
+      };
     }
   }
 
-  public static MakeRequest(cacheBuster: boolean = false): Promise<string> {
+  public static MakeRequest(
+    cacheBuster: boolean = false,
+  ): Promise<Discord.MessageReplyOptions> {
     if (cacheBuster || !APODRequestCache.ValidCache()) {
       APODRequestCache.LastUpdated = new Date();
       APODRequestCache.CachedValue = APODRequestCache.MakeRequestHelper();
@@ -64,6 +72,6 @@ class APODRequestCache {
   }
 }
 
-export async function MakeAPODRequest(): Promise<string> {
+export async function MakeAPODRequest(): Promise<Discord.MessageReplyOptions> {
   return APODRequestCache.MakeRequest();
 }
