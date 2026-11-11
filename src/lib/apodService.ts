@@ -21,15 +21,15 @@ class APODResponse {
   }
 
   Render(): string {
-    try {
-      return [
-        `**${this.title}** ${this.date}`,
-        `${this.alt}`,
-        `${this.hdurl}`,
-      ].join("\n");
-    } catch (ex) {
-      return `oh shit: ${ex}`;
-    }
+    return [
+      `**${this.title}** ${this.date}`,
+      this.copyright == undefined ? "" : `© ${this.copyright}`,
+      `${this.explanation}`,
+      this.credit == undefined ? "" : `- ${this.credit}`,
+      `${this.hdurl}`,
+    ]
+      .filter((line) => line.length > 0)
+      .join("\n");
   }
 }
 
