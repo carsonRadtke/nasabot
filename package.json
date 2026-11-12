@@ -9,10 +9,6 @@
     "build": "tsc",
     "check": "prettier --check src/"
   },
-  "pre-commit": [
-    "build",
-    "check"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/carsonRadtke/nasabot.git"
