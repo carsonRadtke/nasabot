@@ -3,6 +3,8 @@ import { BotEnv } from "./environ";
 import TurndownService from "turndown";
 
 const APODUrl = `https://science.nasa.gov/wp-json/wp/v2/apod-basic?apid_key=${BotEnv.NASAAPIToken}`;
+const NasaThumbnail =
+  "https://science.nasa.gov/wp-content/themes/nasa-child/assets/images/nasa-logo@2x.png";
 
 class APODResponse {
   public date: string = "";
@@ -29,6 +31,7 @@ class APODResponse {
         new Discord.EmbedBuilder()
           .setTitle(this.title)
           .setURL(this.permalink)
+          .setThumbnail(NasaThumbnail)
           .setAuthor({ name: this.credit })
           .setDescription(turndownService.turndown(this.explanation))
           .setImage(this.hdurl)
