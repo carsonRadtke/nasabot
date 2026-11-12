@@ -1,35 +1,40 @@
 import * as Discord from "discord.js";
-import { BotEnv } from "./lib/environ";
-import { MakeAPODRequest } from "./lib/apodService";
-import { CanSendOnChannel } from "./lib/discordUtil";
+import * as Proc from "node:process";
+import * as readline from "node:readline/promises";
+import { BotEnv } from "./lib/environ.ts";
+import { MakeAPODRequest } from "./lib/apodService.ts";
+import { CanSendOnChannel } from "./lib/discordUtil.ts";
 import {
   AcceptedEnrollment,
   SubscriptionManagerCleanup,
   SubscriptionManagerInitialize,
   Unsubscribe,
-} from "./lib/subscriptionManager";
+} from "./lib/subscriptionManager.ts";
 import {
   CommandKind,
-  CommandResult,
+  type CommandResult,
   HandleCommand,
-} from "./lib/commandHandler";
+} from "./lib/commandHandler.ts";
 
 const Commands: {
   [command: string]: {
     description: string;
-    handler: (result: CommandResult, message: Discord.Message) => Promise<void>;
+    handler: (result: CommandResult, msg?: Discord.Message) => Promise<Discord.MessageReplyOptions | string>;
   };
 } = {};
 
-async function ReplyWithAPOD(_res: CommandResult, msg: Discord.Message) {
-  const reply_contents = await MakeAPODRequest();
-  await msg.reply(reply_contents);
+async function ReplyWithAPOD(_res: CommandResult) {
+  return await MakeAPODRequest();
 }
 
 async function ReplyWithEnrollment(
-  _res: CommandResult,
-  { channel }: Discord.Message,
+  _: CommandResult,
+  msg?: Discord.Message,
 ) {
+  if (msg === undefined) {
+    throw "No Discord.Message provided";
+  }
+  const { channel } = msg;
   if (CanSendOnChannel(channel)) {
     if (AcceptedEnrollment(channel.id)) {
       await channel.send("This channel will receive daily APOD updates!");
@@ -38,13 +43,19 @@ async function ReplyWithEnrollment(
         "This channel is already subscribed to daily APOD updates.",
       );
     }
+    return "Channel Enrolled";
   }
+  return "Failed to enroll channel";
 }
 
 async function ReplyWithUnenrollment(
-  _res: CommandResult,
-  { channel }: Discord.Message,
+  _: CommandResult,
+  msg?: Discord.Message,
 ) {
+  if (msg === undefined) {
+    throw "No Discord.Message provided";
+  }
+  const { channel } = msg;
   if (CanSendOnChannel(channel)) {
     if (Unsubscribe(channel.id)) {
       await channel.send(
@@ -55,7 +66,9 @@ async function ReplyWithUnenrollment(
         "This channel is not subscribed to daily APOD updates.",
       );
     }
+    return "Channel unenrolled";
   }
+  return "Failed to unenroll channel";
 }
 
 function HelpMessage(command: string): string {
@@ -70,8 +83,8 @@ function HelpMessage(command: string): string {
   ].join("\n");
 }
 
-async function ReplyWithHelp(res: CommandResult, msg: Discord.Message) {
-  await msg.reply(HelpMessage(res.command));
+async function ReplyWithHelp(res: CommandResult) {
+  return HelpMessage(res.command);
 }
 
 function InitializeCommands() {
@@ -93,13 +106,11 @@ function InitializeCommands() {
   };
 }
 
-function Main() {
+function StartDiscordBot() {
   const Client = new Discord.Client({
     intents: ["DirectMessages", "GuildMessages", "Guilds", "MessageContent"],
     partials: [Discord.Partials.Message, Discord.Partials.Channel],
   });
-
-  InitializeCommands();
 
   Client.on(Discord.Events.ClientReady, (cli: Discord.Client) => {
     console.info(`Connected as ${cli.user?.tag}`);
@@ -120,12 +131,10 @@ function Main() {
       }
       try {
         const command = HandleCommand(content);
-        await (Commands[command.kind] ?? Commands[CommandKind.Help]).handler(
-          command,
-          msg,
-        );
+        const response = await (Commands[command.kind] ?? Commands[CommandKind.Help]!).handler(command);
+        await msg.reply(response);
       } catch (ex) {
-        msg.reply(`uncaught exception: ${ex}`);
+        await msg.reply(`uncaught exception: ${ex}`);
       }
     }
   });
@@ -137,9 +146,28 @@ function Main() {
 
   Client.login(BotEnv.DiscordBotAPIToken).then(async () => {
     SubscriptionManagerInitialize(Client);
-  });
+  }); }
+
+async function StartLocalBot() {
+  const rl = readline.createInterface({ input: Proc.stdin, output: Proc.stdout })
+  while (true) {
+    const content = await rl.question("> ")
+    const command = HandleCommand(content)
+    console.log(content)
+    console.log(command)
+    const response = await (Commands[command.kind] ?? Commands[CommandKind.Help]!).handler(command);
+    console.log(JSON.stringify(response, undefined, 2));
+  }
 }
 
-if (BotEnv.CallMain !== "0") {
-  Main();
+function Main() {
+  InitializeCommands();
+  if (BotEnv.DiscordBotAPIToken === undefined) {
+    StartLocalBot();
+  }
+  else {
+    StartDiscordBot();
+  }
 }
+
+Main();

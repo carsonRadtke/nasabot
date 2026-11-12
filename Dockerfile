@@ -1,5 +1,5 @@
 # Use the latest LTS version of Node.js
-FROM node:20
+FROM node:lts
 
 # Create and change to the app directory
 WORKDIR /usr/src/app
@@ -11,7 +11,7 @@ COPY . .
 RUN npm install
 
 # Build the solution
-RUN npx tsc
+RUN npm run build
 
 # Command to run the application
-CMD ["node", "build/bot.js"]
+CMD ["npm", "run", "bot"]

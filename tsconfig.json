@@ -1,25 +1,46 @@
 {
-  "exclude": ["jest.config.ts", "test"],
+  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig to read more about this file */
+    // File Layout
+    "rootDir": "./src",
+    "outDir": "./dist",
 
-    /* Language and Environment */
-    "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    // Environment Settings
+    // See also https://aka.ms/tsconfig/module
+    // "module": "nodenext",
+    // "target": "esnext",
+    // "types": [],
+    // For nodejs:
+    "lib": ["esnext"],
+    "types": ["node"],
+    // and npm install -D @types/node
 
-    /* Modules */
-    "module": "NodeNext" /* Specify what module code is generated. */,
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
 
-    /* Emit */
-    "outDir": "./build" /* Specify an output folder for all emitted files. */,
+    // Stricter Typechecking Options
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
 
-    /* Interop Constraints */
-    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
-    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+    // Style Options
+    // "noImplicitReturns": true,
+    // "noImplicitOverride": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noFallthroughCasesInSwitch": true,
+    // "noPropertyAccessFromIndexSignature": true,
 
-    /* Type Checking */
-    "strict": true /* Enable all strict type-checking options. */,
+    // Recommended Options
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
 
-    /* Completeness */
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */
+    "rewriteRelativeImportExtensions": true,
   }
 }

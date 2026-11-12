@@ -1,12 +1,15 @@
 import { AzureNamedKeyCredential, TableClient } from "@azure/data-tables";
-import { CanSendOnChannel } from "./discordUtil";
+import { CanSendOnChannel } from "./discordUtil.ts";
 import { Client as DiscordBot } from "discord.js";
-import { BotEnv } from "./environ";
-import { MakeAPODRequest } from "./apodService";
+import { BotEnv } from "./environ.ts";
+import { MakeAPODRequest } from "./apodService.ts";
 
 const Subscriptions: string[] = [];
 
-function getTableClient(): TableClient {
+function getTableClient(): TableClient | undefined {
+  if (BotEnv.AzureAccount === undefined || BotEnv.AzureAccountKey === undefined || BotEnv.AzureTableName === undefined) {
+    return undefined;
+  }
   const credential = new AzureNamedKeyCredential(
     BotEnv.AzureAccount,
     BotEnv.AzureAccountKey,
@@ -17,10 +20,12 @@ function getTableClient(): TableClient {
 
 async function LoadSubscriptions(bot: DiscordBot) {
   const client = getTableClient();
+  if (client === undefined) {
+    return;
+  }
   const entity = await client.getEntity("", "");
   const channels: string = entity.SubscribedChannels as string;
   Subscriptions.push(...JSON.parse(channels));
-  if (BotEnv.SkipHello === "0") {
     for (const subscription of Subscriptions) {
       const channel = await bot.channels.fetch(subscription);
       if (channel !== null && CanSendOnChannel(channel)) {
@@ -29,7 +34,6 @@ async function LoadSubscriptions(bot: DiscordBot) {
         );
       }
     }
-  }
 }
 
 export function AcceptedEnrollment(channel: string): boolean {
@@ -51,6 +55,9 @@ export function Unsubscribe(channel: string): boolean {
 
 async function FlushSubscriptions() {
   const client = getTableClient();
+  if (client === undefined) {
+    return;
+  }
   const updatedEntity = {
     partitionKey: "",
     rowKey: "",
@@ -70,6 +77,9 @@ async function SendDailyAPOD(bot: DiscordBot) {
   const frequency = /* 1 day: */ 24 * 60 * 60 * 1000;
   setInterval(async () => {
     const client = getTableClient();
+    if (client === undefined) {
+      return;
+    }
     const entity = await client.getEntity("", "");
     const channels: string = entity.SubscribedChannels as string;
     const subscriptions = JSON.parse(channels);

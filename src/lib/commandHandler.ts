@@ -17,6 +17,9 @@ export function HandleCommand(messageContents: string): CommandResult {
   const [command, subcommand, ...args] = messageContents
     .split(" ")
     .map((x) => x.trim());
+  if (command === undefined || subcommand == undefined) {
+    return { kind: CommandKind.Unknown, command: "", subcommand: "", args: [] };
+  }
   switch (subcommand) {
     case CommandKind.Subscribe:
       return { kind: CommandKind.Subscribe, command, subcommand, args };
