@@ -156,8 +156,6 @@ async function StartLocalBot() {
   while (true) {
     const content = await rl.question("> ");
     const command = HandleCommand(content);
-    console.log(content);
-    console.log(command);
     const response = await (
       Commands[command.kind] ?? Commands[CommandKind.Help]!
     ).handler(command);
