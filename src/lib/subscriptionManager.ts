@@ -7,7 +7,11 @@ import { MakeAPODRequest } from "./apodService.ts";
 const Subscriptions: string[] = [];
 
 function getTableClient(): TableClient | undefined {
-  if (BotEnv.AzureAccount === undefined || BotEnv.AzureAccountKey === undefined || BotEnv.AzureTableName === undefined) {
+  if (
+    BotEnv.AzureAccount === undefined ||
+    BotEnv.AzureAccountKey === undefined ||
+    BotEnv.AzureTableName === undefined
+  ) {
     return undefined;
   }
   const credential = new AzureNamedKeyCredential(
@@ -26,14 +30,12 @@ async function LoadSubscriptions(bot: DiscordBot) {
   const entity = await client.getEntity("", "");
   const channels: string = entity.SubscribedChannels as string;
   Subscriptions.push(...JSON.parse(channels));
-    for (const subscription of Subscriptions) {
-      const channel = await bot.channels.fetch(subscription);
-      if (channel !== null && CanSendOnChannel(channel)) {
-        await channel.send(
-          "I'm back! I'll continue to send daily updates here.",
-        );
-      }
+  for (const subscription of Subscriptions) {
+    const channel = await bot.channels.fetch(subscription);
+    if (channel !== null && CanSendOnChannel(channel)) {
+      await channel.send("I'm back! I'll continue to send daily updates here.");
     }
+  }
 }
 
 export function AcceptedEnrollment(channel: string): boolean {

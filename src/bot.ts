@@ -19,7 +19,10 @@ import {
 const Commands: {
   [command: string]: {
     description: string;
-    handler: (result: CommandResult, msg?: Discord.Message) => Promise<Discord.MessageReplyOptions | string>;
+    handler: (
+      result: CommandResult,
+      msg?: Discord.Message,
+    ) => Promise<Discord.MessageReplyOptions | string>;
   };
 } = {};
 
@@ -27,10 +30,7 @@ async function ReplyWithAPOD(_res: CommandResult) {
   return await MakeAPODRequest();
 }
 
-async function ReplyWithEnrollment(
-  _: CommandResult,
-  msg?: Discord.Message,
-) {
+async function ReplyWithEnrollment(_: CommandResult, msg?: Discord.Message) {
   if (msg === undefined) {
     throw "No Discord.Message provided";
   }
@@ -48,10 +48,7 @@ async function ReplyWithEnrollment(
   return "Failed to enroll channel";
 }
 
-async function ReplyWithUnenrollment(
-  _: CommandResult,
-  msg?: Discord.Message,
-) {
+async function ReplyWithUnenrollment(_: CommandResult, msg?: Discord.Message) {
   if (msg === undefined) {
     throw "No Discord.Message provided";
   }
@@ -131,7 +128,9 @@ function StartDiscordBot() {
       }
       try {
         const command = HandleCommand(content);
-        const response = await (Commands[command.kind] ?? Commands[CommandKind.Help]!).handler(command);
+        const response = await (
+          Commands[command.kind] ?? Commands[CommandKind.Help]!
+        ).handler(command);
         await msg.reply(response);
       } catch (ex) {
         await msg.reply(`uncaught exception: ${ex}`);
@@ -146,16 +145,22 @@ function StartDiscordBot() {
 
   Client.login(BotEnv.DiscordBotAPIToken).then(async () => {
     SubscriptionManagerInitialize(Client);
-  }); }
+  });
+}
 
 async function StartLocalBot() {
-  const rl = readline.createInterface({ input: Proc.stdin, output: Proc.stdout })
+  const rl = readline.createInterface({
+    input: Proc.stdin,
+    output: Proc.stdout,
+  });
   while (true) {
-    const content = await rl.question("> ")
-    const command = HandleCommand(content)
-    console.log(content)
-    console.log(command)
-    const response = await (Commands[command.kind] ?? Commands[CommandKind.Help]!).handler(command);
+    const content = await rl.question("> ");
+    const command = HandleCommand(content);
+    console.log(content);
+    console.log(command);
+    const response = await (
+      Commands[command.kind] ?? Commands[CommandKind.Help]!
+    ).handler(command);
     console.log(JSON.stringify(response, undefined, 2));
   }
 }
@@ -164,8 +169,7 @@ function Main() {
   InitializeCommands();
   if (BotEnv.DiscordBotAPIToken === undefined) {
     StartLocalBot();
-  }
-  else {
+  } else {
     StartDiscordBot();
   }
 }
