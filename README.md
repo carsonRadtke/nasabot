@@ -12,23 +12,29 @@ Discord bot to interact with https://api.nasa.gov!
 
 ## Getting started
 
-### Host your own nasabot
+### Building locally
 
 ```bash
-$ docker build -t nasabot-docker .
-$ env $(cat .env | xargs) docker run -t nasabot-docker
-    -e NASA_API_TOKEN \
-    -e DISCORD_BOT_API_TOKEN \
-    -e AZURE_ACCOUNT \
-    -e AZURE_ACCOUNT_KEY \
-    -e AZURE_TABLE_NAME \
-    -e CALL_MAIN \
-    -e SKIP_HELLO
+$ npm install
+$ npm run build
+$ npm run bot
 ```
 
-Note: Many systems require a form of authentication before that bot can talk to it. This
-information is passed to the application via the environment. You can find detailed
-descriptions about these fields in [./assets/envvars.csv](envvars.csv).
+Will get you your own REPL.
+
+#### Configuring runtime behavior with environment variables
+
+Several environment variables control the runtime behavior; they are documented in [.assets/envvars.csv](envvars.csv). 
+
+> If you want to connect to your own discord server instead of using a REPL, run:
+
+```bash
+DISCORD_BOT_API_TOKEN=XXX npm run bot
+```
+
+> To keep track of what channels are subscribed to daily updates, you need to specify `AZURE_ACCOUNT`, `AZURE_ACCOUNT_KEY`, and `AZURE_TABLE_NAME`.
+
+> To increase your rate limit on api.nasa.gov, ensure you have `NASA_API_TOKEN` in your enviornment.
 
 ### Add nasabot to your server
 
