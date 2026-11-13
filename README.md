@@ -24,7 +24,7 @@ Will get you your own REPL.
 
 #### Configuring runtime behavior with environment variables
 
-Several environment variables control the runtime behavior; they are documented in [.assets/envvars.csv](envvars.csv). 
+Several environment variables control the runtime behavior; they are documented in [.assets/envvars.csv](envvars.csv).
 
 > If you want to connect to your own discord server instead of using a REPL, run:
 

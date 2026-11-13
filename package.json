@@ -7,7 +7,8 @@
   "scripts": {
     "bot": "node dist/bot.js",
     "build": "tsc",
-    "check": "prettier --check src/"
+    "check": "prettier --check .",
+    "format": "prettier --write ."
   },
   "repository": {
     "type": "git",
